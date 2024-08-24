@@ -13,10 +13,23 @@ enum Status
     Sleeping
 };
 
+struct ThreadData
+{
+    ThreadData(std::string name, pthread_mutex_t *lock)
+        : _name(name)
+        , _lock(lock)
+        {}
+
+    pthread_mutex_t *_lock;
+    std::string _name;
+};
+
 class Thread
 {
     // 函数指针，指向线程执行的函数
-    typedef void (*func_t)(const std::string &name);
+    // typedef void (*func_t)(const std::string &name);
+
+    typedef void (*func_t)(ThreadData *td);
 
 private: 
 
@@ -27,16 +40,17 @@ static void *ThreadRoutine(void *arg)
 
     self->_status = Running;
     // 执行相关函数
-    self->_func(self->_name);
+    self->_func(self->_td);
     self->_status = Sleeping;
 
     return nullptr;
 }
 
 public:
-    Thread(const std::string &name, func_t func)
+    Thread(const std::string &name, func_t func, ThreadData *td)
         : _name(name)
         , _func(func)
+        , _td(td)
     {
         _status = Sleeping;
         std::cout << "Successfully Created " << _name << "." << std::endl;
@@ -65,15 +79,21 @@ public:
     bool Join()
     {
         if(pthread_join(_tid, nullptr) != 0) { return false; }
-        
+        delete _td;
+
         std::cout << _name << " Joined!" << std::endl;
         return true;
     }
-     
+    
+    ~Thread()
+    {
+        
+    }
 
 private:
     std::string _name;
     pthread_t _tid;
     func_t _func;
     Status _status;
+    ThreadData *_td;
 };
