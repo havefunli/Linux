@@ -1,8 +1,11 @@
+#pragma once
+
 #include "ToolForSockAddr_in.hpp"
 
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#include <unistd.h>
 #include <memory>
 #include <cstdio>
 #include <iostream>
@@ -22,8 +25,9 @@ public:
     virtual void CreateListen(int backlog = 5) = 0; // 监听连接
     virtual void Connect(const std::string&, uint16_t) = 0; // 连接
     virtual SockPtr AcceptConnect(SockAddHelper&) = 0; // 接受连接
-    virtual ssize_t Recv(std::string& out) = 0; // 接收消息
+    virtual bool Recv(std::string& out) = 0; // 接收消息
     virtual ssize_t Send(const std::string&) = 0; // 发送消息
+    virtual int GetFd() = 0; // 获取文件描述符
 
 public:
     void BuildTcpListen(uint16_t PORT, const std::string& ip = "0", int backlog = 5)
@@ -111,7 +115,7 @@ public:
         std::cout << "Successful connect..." << std::endl;
     }
 
-    ssize_t Recv(std::string& out) override
+    bool Recv(std::string& out) override
     {
         char OutBuff[1024];
         ssize_t n = recv(_sockfd, OutBuff, sizeof(OutBuff) - 1, 0);
@@ -119,15 +123,28 @@ public:
         {
             OutBuff[n] = '0';
             out = OutBuff;
+            return true;
         }
-
-        return n;
+        else if(n < 0)
+        {
+            perror("recv:");
+            return false;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     ssize_t Send(const std::string& in) override
     {
         int n = send(_sockfd, in.c_str(), in.size(), 0);
         return n;
+    }
+
+    int GetFd() override
+    {
+        return _sockfd;
     }
 
 private:

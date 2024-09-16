@@ -38,27 +38,32 @@ public:
             // 发送到服务端
             ssize_t n = sock->Send(Req);
             if(n > 0) std::cout << "Successful Send..." << std::endl;
-            else
+            else 
             {
                 perror("send:");
                 continue;
             }
-
             // 接收信息
             std::string packagestream;
-            sock->Recv(packagestream);
+            bool ret = sock->Recv(packagestream);
+            if(ret) std::cout << "Successful recv..." << std::endl;
+            else continue;
+            std::cout << packagestream << std::endl;
 
             // 报文解析
             std::string package = Decode(packagestream);
             if(package.empty()) continue;
+            std::cout << "Successful decode..." << std::endl;
+            std::cout << package << std::endl;
             
             // 反序列化
-            std::shared_ptr<Response> ResPtr;
+            std::shared_ptr<Response> ResPtr = std::make_shared<Response>();
             ResPtr->Deserialize(package);
+            std::cout << "Successful deserialize..." << std::endl;
 
             // 输出结果
             std::cout << "最终结果是：" << std::endl;
-            ResPtr->GetResult();
+            std::cout << ResPtr->GetResult() << std::endl;
         }
     }
 };

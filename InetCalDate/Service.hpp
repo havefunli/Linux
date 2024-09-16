@@ -27,31 +27,49 @@ public:
             bool ret = sock->Recv(packagestream);
             if(ret) std::cout << "Successful recv..." << std::endl;
             else break;
+            std::cout << packagestream << std::endl;
 
             // 报文解析
             std::string package = Decode(packagestream);
             if(package.empty()) continue;
-            std::cout << package << std::endl;
             std::cout << "Successful decode..." << std::endl;
+            std::cout << package << std::endl;
             
             // 反序列化
-            std::shared_ptr<Request> ReqPtr;
-            std::cout << "Begin deserialize..." << std::endl;
+            std::shared_ptr<Request> ReqPtr = std::make_shared<Request>();
             ReqPtr->Deserialize(package);
             std::cout << "Successful deserialize..." << std::endl;
 
             // 内容处理
             std::shared_ptr<Response> ResPtr = _task(ReqPtr);
+            std::cout << "Successful handletask..." << std::endl;
+            std::cout << ResPtr->GetResult() << std::endl;
 
             // 序列化
-            std::string ResultReq = ReqPtr->Serialize();
+            std::string ResultReq = ResPtr->Serialize();
+            std::cout << "Successful Serialize..." << std::endl;
+            std::cout << ResultReq << std::endl;
 
             // 添加报头
             Encode(ResultReq);
+            std::cout << "Successful encode..." << std::endl;
+            std::cout << ResultReq << std::endl;
 
             // 发送到客户端
-            sock->Send(ResultReq);
+            int n = sock->Send(ResultReq);
+            if(n < 0) 
+            {
+                perror("send");
+                continue;
+            }
+            else
+            {
+                std::cout << "Successful send..." << std::endl;
+            }
         }
+
+        std::cout << "Quit..." << std::endl;
+        close(sock->GetFd()); 
     }
 
 
