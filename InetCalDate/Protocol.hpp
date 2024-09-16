@@ -46,11 +46,10 @@ public:
         root["Operator"] = _Oper;
 
         std::string Seq = Json::FastWriter().write(root);
-        std::cout << "Successful serialize..." << std::endl;
         return Seq;
     }
 
-    bool Deserialize(const std::string in)
+    bool Deserialize(std::string in)
     {
         Json::Value root;
         bool n = Json::Reader().parse(in, root);
@@ -122,7 +121,9 @@ public:
         Json::Value root;
         bool n = Json::Reader().parse(in, root);
 
-        _result = root.asInt();
+        _result = root["Result"].asInt();
+
+        std::cout << "Result: " << _result << std::endl;
 
         return n;
     }

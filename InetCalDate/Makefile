@@ -1,11 +1,11 @@
 .PTHONY:all
 all:server client
 
-client:Client.cc
-	g++ $^ -o $@ -std=c++14
+client:Client.cc Date.cpp
+	g++ $^ -o $@ -std=c++14 -ljsoncpp -lpthread
 
-server:Server.cc
-	g++ $^ -o $@ -std=c++14
+server:Server.cc Date.cpp
+	g++ $^ -o $@ -std=c++14 -ljsoncpp -lpthread
 
 .PTHONY:clean
 clean:

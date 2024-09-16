@@ -1,5 +1,19 @@
 #include "Date.h"
 
+std::ostream& operator<<(std::ostream& os, Date& date)
+{
+	os << date._year << "-" << date._month << "-" << date._day;
+
+	return os;
+}
+
+std::istream& operator>>(std::istream& in, Date& date)
+{
+	in >> date._year >> date._month >> date._day;
+
+	return in;
+}
+
 Date::Date(const int year, const int month, const int day) {
 	_year = year;
 	_month = month;
@@ -152,4 +166,14 @@ int Date::operator-(const Date& D) const{
 	}
 
 	return flag * day;
+}
+
+Json::Value Date::toJosn() const
+{
+	Json::Value Obj;
+	Obj["Year"] = _year;
+	Obj["Month"] = _month;
+	Obj["Day"] = _day;
+
+	return Obj;
 }

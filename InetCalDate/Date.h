@@ -1,5 +1,5 @@
 #pragma once
-
+#include <jsoncpp/json/json.h>
 #include <iostream>
 using namespace std;
 
@@ -9,6 +9,9 @@ using namespace std;
 
 class Date {
 public:
+	friend std::ostream& operator<<(std::ostream& os, Date& date);
+	friend std::istream& operator>>(std::istream& in, Date& date);
+
 	int getMonthDay(int year, int month) {
 		static int MonthDay[13] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 		if (month == 2) {
@@ -69,6 +72,9 @@ public:
 
 	// d1 - d2;
 	int operator-(const Date& right) const;
+
+	// 支持序列化
+	Json::Value toJosn() const;
 
 private:
 	int _year;
