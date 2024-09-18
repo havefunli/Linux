@@ -3,7 +3,7 @@
 #include <memory>
 #include <functional>
 
-using service_t = std::function<void(std::string)>;
+using service_t = std::function<void(SockPtr)>;
 using SockPtr = std::shared_ptr<Socket>;
 
 class TcpServer
@@ -27,12 +27,12 @@ public:
             SockAddHelper clientaddr;
             SockPtr newsock = _Ptr->AcceptConnect(clientaddr);
 
-            std::string request;
-            newsock->Recv(request);
-            std::cout << "Successful Recv..." << std::endl;
-            std::cout << request << std::endl;
+            // std::string request;
+            // newsock->Recv(request);
+            // std::cout << "Successful Recv..." << std::endl;
+            // std::cout << request << std::endl;
 
-            std::thread td(_func, request);
+            std::thread td(_func, newsock);
             td.detach(); 
         }
     }
