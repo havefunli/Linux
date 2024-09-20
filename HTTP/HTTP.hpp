@@ -246,24 +246,36 @@ public:
 
         // 获取内容
         HTTPResponse response;
-        std::string content = GetFileContent(request.GetPath());
-        std::cout << "Successful get content..." << std::endl;
 
-        // 处理非法请求
-        if(content.empty())
-        {   
-            response.SetStatus(404, "Not Fund");
-            content = GetFileContent(DefaultPathFor_404);
+        // 路径判断, 是否重定向
+        std::string Path = request.GetPath();
+        if(Path == "wwwroot/redir.html")
+        {
+            std::string RedirPath = "https://blog.csdn.net/weixin_73757824?spm=1000.2115.3001.5343";
+            response.SetStatus(301, "create");
+            response.AddHeader("Location", RedirPath);
         }
         else
         {
-            response.SetStatus(200, "OK");
+            std::string content = GetFileContent(Path);
+            std::cout << "Successful get content..." << std::endl;
+
+            // 处理非法路径请求
+            if(content.empty())
+            {   
+                response.SetStatus(404, "Not Fund");
+                content = GetFileContent(DefaultPathFor_404);
+            }
+            else
+            {
+                response.SetStatus(200, "OK");
+            }
+            
+            // 初始化响应字段
+            response.SetContent(content);
+            response.AddHeader("Content-Length", std::to_string(content.size()));
+            response.AddHeader("Content-Type", _suffixs_table[_suffix]);
         }
-        
-        // 初始化响应字段
-        response.SetContent(content);
-        response.AddHeader("Content-Length", std::to_string(content.size()));
-        response.AddHeader("Content-Type", _suffixs_table[_suffix]);
 
         // 序列化
         std::string Req = response.Serialize();
