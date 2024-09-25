@@ -1,0 +1,41 @@
+<!DOCTYPE html>  
+<html lang="zh-CN">  
+<head>  
+<meta charset="UTF-8">  
+<title>跳动的“你好”</title>  
+<style>  
+  /* 添加一个中心对齐的容器样式 */  
+  .center-container {  
+    display: flex;  
+    justify-content: center; /* 水平居中 */  
+    align-items: center; /* 垂直居中 */  
+    height: 100vh; /* 使用视窗高度的100%来确保容器填满整个视窗 */  
+  }  
+  
+  @keyframes bounce {  
+    0%, 20%, 50%, 80%, 100% {  
+      transform: translateY(0);  
+    }  
+    40% {  
+      transform: translateY(-30px);  
+    }  
+    60% {  
+      transform: translateY(-15px);  
+    }  
+  }  
+  
+  .bounce-text {  
+    font-size: 48px; /* 增大字体大小 */  
+    animation: bounce 2s infinite;  
+  }  
+</style>  
+</head>  
+<body>  
+  
+<!-- 添加一个div作为容器来包裹跳动的文字，以便能够居中显示 -->  
+<div class="center-container">  
+    <div class="bounce-text">你好</div>  
+</div>  
+  
+</body>  
+</html>
