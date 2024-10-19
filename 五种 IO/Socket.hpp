@@ -51,7 +51,7 @@ public:
     TcpSocket() {}
 
     TcpSocket(int fd) 
-        : _sockfd(fd)    
+        : _sockfd(fd)  
     {}
 
     void CreateSocket()
