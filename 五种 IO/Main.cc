@@ -1,4 +1,4 @@
-#include "SelectServer.hpp"
+#include "EpollServer.hpp"
 
 
 int main(int argc, char *argv[])
@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     }
 
     uint16_t port = std::stoi(argv[1]);
-    std::unique_ptr<SelectServer> svrptr = std::make_unique<SelectServer>(port);
+    std::unique_ptr<EpollServer> svrptr = std::make_unique<EpollServer>(port);
     svrptr->Loop();
     
     return 0;
