@@ -1,6 +1,10 @@
-main:Main.cc
-	g++ Main.cc -o main
+main: Main.cc InetDateCal/Date.cpp
+	g++ $^ -ljsoncpp -o $@
 
-.PTHONY:clean
+.PHONY:client
+client:Client.cc InetDateCal/Date.cpp
+	g++ $^ -ljsoncpp -o $@
+
+.PHONY:clean
 clean:
 	rm -rf main

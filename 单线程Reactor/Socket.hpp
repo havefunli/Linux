@@ -18,7 +18,7 @@ using SockPtr = std::shared_ptr<Socket>;
 class Socket
 {
 public:
-    virtual void CreateSocket() = 0; // 创建套接字文件
+    virtual void CreateSocket(bool IsBlock) = 0; // 创建套接字文件
     virtual void BindAddress(uint16_t, const std::string& ip = "0") = 0; // 绑定地址
     virtual void CreateListen(int backlog = 5) = 0; // 监听连接
     virtual void Connect(const std::string&, uint16_t) = 0; // 连接
@@ -28,17 +28,17 @@ public:
     virtual int GetFd() = 0; // 获取文件描述符
 
 public:
-    void BuildTcpListen(uint16_t PORT, const std::string& ip = "0", int backlog = 5)
+    void BuildTcpListen(uint16_t PORT, const std::string& IP = "0", int backlog = 5)
     {
-        CreateSocket();
-        BindAddress(PORT, ip);
+        CreateSocket(true);
+        BindAddress(PORT, IP);
         CreateListen(backlog);
     }
 
-    void BuildTcpClient(const std::string& ip, uint16_t PORT)
+    void BuildTcpClient(const std::string& IP, uint16_t PORT)
     {
-        CreateSocket();
-        Connect(ip, PORT);
+        CreateSocket(false);
+        Connect(IP, PORT);
     }
 };
 
@@ -52,7 +52,7 @@ public:
         : _sockfd(fd)  
     {}
 
-    void CreateSocket()
+    void CreateSocket(bool IsBlock)
     {
         _sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if(_sockfd < 0) 
@@ -63,7 +63,7 @@ public:
 
         std::cout << "Successful create socket..." << std::endl;
 
-        if (!SetNonBlock(_sockfd))
+        if (IsBlock && !SetNonBlock(_sockfd))
         {
             std::cerr << "Set listensockfd nonblock error..." << std::endl;
             exit(1);
@@ -107,26 +107,28 @@ public:
             perror("accept:");
             return fd;
         }
-        
+
+        clientaddr = SockAddHelper(client);
+        std::cout << "Successful accept..." << std::endl;
+
         if (!SetNonBlock(fd))
         {
             std::cerr << "Set fd nonblock error..." << std::endl;
             return -1;
         }
-
-        clientaddr = SockAddHelper(client);
-        std::cout << "Successful accept..." << std::endl;
+        
         return fd;
     }
 
     void Connect(const std::string& serip, uint16_t serport) override
     {
         SockAddHelper serveraddr(serip, serport);
+
         int n = connect(_sockfd, serveraddr.ToSockaddr(), serveraddr.SizeofAdd());
         if(n < 0)
         {
-            perror("connect:");
-            exit(1);
+            perror("connect");
+            exit(-1);
         }
 
         std::cout << "Successful connect..." << std::endl;

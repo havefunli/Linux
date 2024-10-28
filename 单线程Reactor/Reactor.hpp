@@ -16,6 +16,7 @@ private:
 
     void PrintSockfd()
     {
+        std::cout << "Managed fd: ";
         for (auto& pair : _conn)
         {
             std::cout << pair.first << " ";
@@ -47,8 +48,9 @@ public:
             conn->Register(_onRecv, _onSend, _onExcept);
         }
 
-        // 设置地址
+        // 设置地址和事件
         conn->SetAddr(addr);
+        conn->SetEvents(events);
 
         // 让每一个连接指向 Reactor，便于后续添加操作
         conn->SetPtr(this);
@@ -56,9 +58,17 @@ public:
         // 管理连接 
         _conn.insert(std::make_pair(fd, conn));
 
-        std::cout << "New fd = " << fd << ", info: [" << addr.GetIP() << "][" << addr.GetPort() << "]" << std::endl;
+        std::cout << "Successful add new connection, new fd = " << fd << ", info: [" << addr.GetIP() << "][" << addr.GetPort() << "]" << std::endl;
         
         return true;
+    }
+
+    bool DelConnection(int fd)
+    {
+        if (IsAlive(fd))
+        {
+            
+        }
     }
 
     // 单次事件就绪处理逻辑
@@ -109,6 +119,17 @@ public:
         _onRecv = onRecv;
         _onSend = onSend;
         _onExcept = onExcept;
+    }
+
+    void EnableConnEvent(int fd, uint32_t events)
+    {
+        if (!IsAlive(fd))
+        {
+            std::cerr << "The fd " << fd << "is not exists..." << std::endl;
+            return;
+        }
+        _conn[fd]->SetEvents(events);
+        _epoll->ModEvent(fd, events);
     }
 
     // 事件派发

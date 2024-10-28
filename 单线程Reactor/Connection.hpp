@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <functional>
+#include "sys/epoll.h"
 #include "ToolForSockAddr_in.hpp"
 
 enum ConnType
@@ -42,6 +43,12 @@ public:
         _contype = contype;
     }
 
+    // 默认是 EPOLLET 模式
+    void SetEvents(uint32_t events)
+    {
+        _events = events | EPOLLET;
+    }
+
     Reactor* GetPtr()
     {
         return _R_Ptr;
@@ -62,6 +69,21 @@ public:
     std::string& InBuff()
     {
         return _inbuffer;
+    }
+
+    std::string& OutBuff()
+    {
+        return _outbuffer;
+    }
+
+    bool DiscardOutBuff(int n)
+    {
+        if (n <= _outbuffer.size())
+        {
+            _outbuffer.erase(0, n);
+            return true;
+        }
+        return false;
     }
 
 private:

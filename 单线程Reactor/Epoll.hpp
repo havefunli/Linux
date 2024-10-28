@@ -17,6 +17,18 @@ private:
         return ev;
     }
 
+    bool ModEventHelper(int fd, uint32_t events, int oper)
+    {
+        struct epoll_event ev = CreateEpollEvent(fd, events);
+        int n = epoll_ctl(_epfd, oper, fd, &ev);
+        if (n < 0)
+        {
+            perror("epoll_ctl");
+            return false;
+        }
+        return true;
+    }
+
 public:
     Epoll()
     {
@@ -31,14 +43,17 @@ public:
 
     bool AddEvent(int fd, uint32_t events)
     {
-        struct epoll_event ev = CreateEpollEvent(fd, events);
-        int n = epoll_ctl(_epfd, EPOLL_CTL_ADD, fd, &ev);
-        if (n < 0)
-        {
-            perror("epoll_ctl");
-            return false;
-        }
-        return true;
+        return ModEventHelper(fd, events, EPOLL_CTL_ADD);
+    }
+
+    bool ModEvent(int fd, uint32_t events)
+    {
+        return ModEventHelper(fd, events, EPOLL_CTL_MOD);
+    }
+
+    bool DelEvent(int fd)
+    {
+        return ModEventHelper(fd, 0, EPOLL_CTL_DEL);
     }
 
     int Wait(struct epoll_event rev[], int num)
